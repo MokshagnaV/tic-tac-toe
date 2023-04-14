@@ -13,6 +13,21 @@
         <img src="media/tictactoe.png" alt="">
     </header>
     <main>
+        <div class="play-type">
+            <button id="sing-play" class="sel-but active">Single Player</button>
+            <button id="mul-play" class="sel-but">Multi Player</button>
+        </div>
+        <div class="player-select" id="sing-play">
+            <input type="text" id="sp1" value="Player 1">
+            <select name="" id="slabel">
+                <option value="X">X</option>
+                <option value="O">O</option>
+            </select>
+        </div>
+        <div class="player-select" id="mul-play">
+            <input type="text" id="p1" value="Player 1"><span class="label">X</span>
+            <input type="text" id="p2" value="Player 2"><span class="label">O</span>
+        </div>
         <div class="board">
             <div class="cell" id="c1"></div>
             <div class="cell" id="c2"></div>

@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap');
 
+:root{
+    --primary-clr: #E9EDC9;
+    --secondary-clr: #CCD5AE;
+}
 *{
     font-family: 'Delicious Handrawn', cursive;
 }
@@ -77,7 +81,7 @@ body{
 header{
     display: flex;
     justify-content: center;
-    background-color: #CCD5AE ;
+    background-color: var(--secondary-clr) ;
     box-shadow: 0px 5px 10px rgb(138, 145, 116);
     z-index: 1;
 }
@@ -88,7 +92,7 @@ header img{
 main{
     padding: 2rem;
     flex: 1;
-    background-color: #E9EDC9;
+    background-color: var(--primary-clr);
     display: flex;
     align-items: center ;
     flex-direction: column;
@@ -105,10 +109,39 @@ main{
     box-shadow: 0px 5px 10px rgb(138, 145, 116);
 }
 
+.sel-but{
+    padding: .3rem .7rem;
+    margin: 1rem;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0px 5px 10px rgb(138, 145, 116);
+    border-radius: 5px;
+}
+
+.active{
+    box-shadow: 0px 5px 10px rgb(110, 233, 137);
+    background-color: rgb(0, 158, 34);
+    color: #ffffff;
+}
+
 #my-canvas{
     position: fixed;
     top: 0px;
     z-index: 10;
     display: none;
     pointer-events: none;
+}
+
+input, option, select, .label{
+    font-size: 1.2rem;
+}
+.play-type button{ 
+    font-size: 1.2rem;
+}
+.player-select#mul-play{
+    display: none;
+}
+
+.label{
+    margin: 1rem 1rem 1rem .3rem;
 }

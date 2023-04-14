@@ -1,4 +1,5 @@
 const cells = document.querySelectorAll(".cell");
+const indexes = ["c1","c2","c3","c4","c5","c6","c7","c8","c9"]
 
 const GameBoard = (() => {
     const board = [new Array(3).fill(null),
@@ -103,20 +104,22 @@ const GameBoard = (() => {
     const markMove = (box, label) => {
         board[indexArr[box].x][indexArr[box].y] = label;
     }
+
+    const isFree = (box) => {
+        return board[indexArr[box].x][indexArr[box].y];
+    }
     return {
         start,
         markMove,
         reset,
         result,
         isFull,
-        board,
+        isFree,
+        board
     }
 })();
 
 const DOMWriter = ((doc) =>{
-    const query = (target, content) => {
-        doc.querySelector(target).innerHTML = content;
-    }
     const xWriter = (target) =>{
         doc.querySelector(target).innerHTML = "X";
     }
@@ -124,7 +127,6 @@ const DOMWriter = ((doc) =>{
         doc.querySelector(target).innerHTML = "O";
     }
     return {
-        query,
         xWriter,
         oWriter,
     }
@@ -132,37 +134,157 @@ const DOMWriter = ((doc) =>{
 
 
 let game = true;
-let flag = 0;
+let singleGame = true;
+
+const MultiGameController = (() => {
+    const players = [
+        {
+            name: "playerOne",
+            label: "X"
+        },
+        {
+            name: "playerTwo",
+            label: "O"
+        }
+    ]
+
+    let activePlayer = players[0];
+
+    const setPlayerOne = (pOne) =>{
+        players[0].name = pOne;
+    }
+
+    const setPlayerTwo = (pTwo) =>{
+        players[1].name = pTwo;
+    }
+
+    const playerChange = () => {
+       activePlayer = activePlayer === players[0]? players[1]: players[0];
+    }
+    
+    const getPlayer = () => activePlayer;
+
+    return {
+        setPlayerOne,
+        setPlayerTwo,
+        playerChange,
+        getPlayer,
+    }
+})();
+
+const SingleGameController = (()=>{
+    const players = [
+        {
+            name: "Human",
+            label: "X",
+        },
+        {
+            name: "AI",
+            label: "O",
+        }
+    ]
+
+    const setPlayerName = (pname)=>{
+        players[0].name = pname;
+    }
+    const setPlayerLabel = (plabel) => {
+        if(players[0].label !== plabel){
+            players[1].label = players[0].label;
+            players[0].label = plabel;
+        }
+    }
+    let activePlayer = players[0];
+    const playerChange = () => {
+        activePlayer = activePlayer === players[0]? players[1]: players[0];
+    }
+    const getPlayer = () => activePlayer;
+ 
+    const getAIResponse = () =>{
+        let resp = indexes[parseInt(Math.random()*8)];
+        while(GameBoard.isFree(resp)){
+            resp = indexes[parseInt(Math.random()*8)];
+        }
+        return resp;
+    }
+    return{
+        setPlayerLabel,
+        setPlayerName,
+        playerChange,
+        getPlayer,
+        getAIResponse,
+    }
+})()
+
 cells.forEach((cell) => {
     cell.addEventListener("click", ()=>{
-        if(game){
+        if(game && !singleGame){
             if (cell.innerHTML === "") {
                 const id = cell.getAttribute("id");
-                if(flag%2 == 0){
+                if(MultiGameController.getPlayer().label == "X"){
                     DOMWriter.xWriter(`#${id}`);
                     GameBoard.markMove(id, "x");
                     if(GameBoard.result(id)){
-                        Modal.open("X won", true);
+                        Modal.open(`${MultiGameController.getPlayer().name} [${MultiGameController.getPlayer().label}] Won`, true);
                         game = false;
                     }
                     else if(GameBoard.isFull()){
                         Modal.open("It's a draw!", false);
                         game = false;
                     }
-                    flag++;
+                    MultiGameController.playerChange();
                 }else{
                     DOMWriter.oWriter(`#${id}`);
                     GameBoard.markMove(id, "o");
                     if(GameBoard.result(id)){
                         game = false;
-                        Modal.open("O won", true);
+                        Modal.open(`${MultiGameController.getPlayer().name} [${MultiGameController.getPlayer().label}] Won`, true);
                     }
                     else if(GameBoard.isFull()){
                         Modal.open("It's a draw!", false);
                         game = false;
                     }
-                    flag++;
+                    MultiGameController.playerChange();
                 }
+            }
+        }else if(game){
+            if (cell.innerHTML === "") {
+                const id = cell.getAttribute("id");
+                const label = SingleGameController.getPlayer().label;
+                if(label == 'X'){
+                    DOMWriter.xWriter(`#${id}`);
+                }else{
+                    DOMWriter.oWriter(`#${id}`);
+                }
+                GameBoard.markMove(id, label);
+                if(GameBoard.result(id)){
+                    Modal.open(`${SingleGameController.getPlayer().name} [${label}] Won`, true);
+                    game = false;
+                    return;
+                }
+                else if(GameBoard.isFull()){
+                    Modal.open("It's a draw!", false);
+                    game = false;
+                    return;
+                }
+                SingleGameController.playerChange();
+                const AIresp = SingleGameController.getAIResponse();
+                const AIlabel = SingleGameController.getPlayer().label;
+                if(AIlabel == 'X'){
+                    DOMWriter.xWriter(`#${AIresp}`);
+                }else{
+                    DOMWriter.oWriter(`#${AIresp}`);
+                }
+                // console.log(`AI Done Writing on ${AIresp} ${AIlabel}`)
+                GameBoard.markMove(AIresp, SingleGameController.getPlayer().label);
+                if(GameBoard.result(AIresp)){
+                    Modal.open(`${SingleGameController.getPlayer().name} [${AIlabel}] Won`, true);
+                    game = false;
+                }
+                else if(GameBoard.isFull()){
+                    Modal.open("It's a draw!", false);
+                    game = false;
+                }
+                SingleGameController.playerChange();
             }
         }
     })
@@ -172,12 +294,6 @@ const reset = document.querySelector("#reset");
 reset.addEventListener("click", ()=>{
     GameBoard.reset();
 })
-
-const WinnerMoment = ((doc) =>{
-    const winner = (player) =>{
-        
-    }
-})(document)
 
 const Modal = (() => {
     const modal = document.querySelector(".modal");
@@ -212,3 +328,43 @@ var confettiElement = document.getElementById('my-canvas');
 var confettiSettings = { target: confettiElement };
 var confetti = new ConfettiGenerator(confettiSettings);
 confetti.render();
+
+const boxes = document.querySelectorAll(".player-select");
+
+const sel_buts = document.querySelectorAll(".sel-but");
+sel_buts.forEach((but)=> {
+    but.addEventListener("click", () => {
+        if(!but.classList.contains("active")){
+            singleGame = singleGame ? false: true
+            sel_buts.forEach((but) => {
+                but.classList.remove("active");
+            })
+            but.classList.add("active");
+            boxes.forEach(box =>{
+                if(box.getAttribute("id") === but.getAttribute("id")){
+                    box.style.display = "block";
+                }else{
+                    box.style.display = "none";
+                }
+            })
+        }
+    })
+})
+
+const p1 = document.querySelector("#p1");
+p1.addEventListener("input", ()=>{
+    MultiGameController.setPlayerOne(p1.value);
+})
+const p2 = document.querySelector("#p2");
+p2.addEventListener("input", ()=>{
+    MultiGameController.setPlayerTwo(p2.value);
+})
+
+const sp1 = document.querySelector("#sp1");
+sp1.addEventListener("input", ()=>{
+    SingleGameController.setPlayerName(sp1.value);
+})
+const slabel = document.querySelector("#slabel");
+slabel.addEventListener("input", ()=>{  
+    SingleGameController.setPlayerLabel(slabel.value);
+})
