@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap');
-
 :root{
     --primary-clr: #E9EDC9;
     --secondary-clr: #CCD5AE;
@@ -132,12 +131,11 @@ main{
     pointer-events: none;
 }
 
-input, option, select, .label{
+input, option, select, .label, .play-type button{
     font-size: 1.2rem;
+    font-family: 'Courier New', Courier, monospace;
 }
-.play-type button{ 
-    font-size: 1.2rem;
-}
+
 .player-select#mul-play{
     display: none;
 }
